@@ -275,10 +275,20 @@
             </div>
             <button onclick="checkPassword('10')">Abrir Mensagem</button>
             <div class="message hidden" id="message10">
-                <h3>O que dizer da Hadassa?</h3>
-                <p>Hoje é seu dia especial e quero que saiba o quão importante você é para mim. Desde o primeiro momento que te vi, sabia que você seria especial na minha vida.</p>
-                <p>Você ilumina meus dias com seu sorriso e ternura. Que este novo ano de vida traga ainda mais alegrias, conquistas e momentos maravilhosos ao seu lado.</p>
-                <p>Te amo mais do que as palavras podem expressar!</p>
+                <h3>Feliz Aniversário, Hadassa!</h3>
+                <p><strong>O que dizer da Hadassa?</strong></p>
+                <p>Bom, eu tenho muito a dizer, e pra ser sincero não caberia em uma única mensagem de whatsapp (e também não faz muito meu estilo fazer só uma mensagem).</p>
+                <p><strong>ENTÃO EU FIZ UM SITE OLHA QUE LEGAL</strong></p>
+                <p>Deixa eu explicar a dinâmica desse site, em cada horário vai ser liberado para você colocar uma senha e ler a mensagem que eu fiz para você.</p>
+                <p>Eu vou te dar dicas durante o dia de quais são as senhas.</p>
+                <p>Essa primeira tava fácil (até porque eu falei KKKKKKK)</p>
+                <p>Mas eu queria falar sobre a senha então.</p>
+                <p>Hadassa, você é **peculiar**, e não falo isso num sentido ruim, mas no sentido de não há muitas pessoas iguais a você! A primeira qualidade que salta a os olhos é sua beleza, e nossa, como você é **bonita**! Você tem (com todo o respeito) um belo corpo, e jamais deve olhar para ele e achar insuficiente. Claro, procurar melhorar é algo sempre bem vindo, mas faz isso sendo leve, garanto que os ganhos vão ser mais gostosos. Além de você ser linda, tem um sorriso magnífico, um cabelo espetacular de lindo (agora muito cheiroso pq eu futuro namorado comprou um shampoo de manga).</p>
+                <p>Sem falar da sua presença, sempre **alegre, divertida e gentil**, passa alegrando a sua volta e eu sempre pensei que você era algum tipo de anjo, porque não é possível alguém ser tão brilhante assim.</p>
+                <p>Por falar em brilhante temos a sua **inteligência** que é algo de outro mundo, principalmente quando se trata de biologia e animais (vamos ter que ter um cachorro).</p>
+                <p>Bom, poderia ficar o dia inteiro falando de você, mas eu vou deixar que cada horário fale por si.</p>
+                <p>Mas quero dizer de antemão, que Deus abençoe sua vida, que Ele derrame toda sorte de bençãos na sua vida, que Ele te guie no caminho certo para cada momento ser sábio e efetivo por conta dEle e quero que saiba que estou orando muito pela sua vida!</p>
+                <p><strong>Feliz aniversário Hadassa!</strong></p>
             </div>
         </div>
 
@@ -407,10 +417,11 @@
             for (const [id, releaseTime] of Object.entries(releaseTimes)) {
                 const card = document.getElementById(`time${id}`);
                 // Use a data atual para verificar o horário.
-                // Como hoje é 21 de julho de 2025, todos os horários passados serão liberados se for após o horário.
+                // Ajustado para o fuso horário de São Paulo (GMT-3)
                 const today = new Date();
                 const releaseDate = new Date(today.getFullYear(), today.getMonth(), today.getDate(), Math.floor(releaseTime / 100), releaseTime % 100, 0);
-
+                
+                // Comparar os timestamps
                 if (now.getTime() >= releaseDate.getTime()) {
                     card.classList.remove('locked');
                 } else {
