@@ -58,30 +58,38 @@
         .carousel-container {
             width: 100%; /* Ajuste a largura conforme necessário */
             max-width: 700px; /* Largura máxima, ajuste se quiser */
-            height: 400px; /* Altura fixa do carrossel, AJUSTE CONFORME SUAS FOTOS! */
+            height: auto; /* IMPORTANTE: Altura automática para se ajustar às imagens */
+            min-height: 300px; /* Altura mínima para evitar colapso antes de carregar a imagem */
             margin: 2rem auto;
             overflow: hidden;
             position: relative;
             border-radius: 15px;
             box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            transition: height 0.5s ease-in-out; /* Transição suave na mudança de altura */
         }
 
         .carousel-slide {
             display: flex; /* Para colocar as imagens lado a lado */
             width: 100%;
-            height: 100%;
-            transition: transform 0.5s ease-in-out; /* Transição suave */
+            height: 100%; /* Ocupa a altura do container */
+            position: relative; /* Para posicionar imagens absolutas dentro */
         }
 
         .carousel-img {
-            min-width: 100%; /* Garante que a imagem ocupe a largura total */
-            height: 100%;
-            object-fit: cover; /* Corta a imagem para preencher, mantendo a proporção */
-            display: none; /* Esconde todas as imagens por padrão */
+            width: 100%; /* Garante que a imagem ocupe a largura total */
+            height: 100%; /* Ocupa a altura do container */
+            object-fit: contain; /* Ajusta a imagem dentro do contêiner, mostrando a imagem completa (pode ter barras) */
+            /* Se preferir que a imagem preencha o espaço cortando as bordas, use 'cover' */
+            /* object-fit: cover; */
+            position: absolute; /* Para que uma imagem possa sobrepor a outra durante a transição */
+            top: 0;
+            left: 0;
+            opacity: 0; /* Começa escondida */
+            transition: opacity 0.5s ease-in-out; /* Transição suave de fade */
         }
 
         .carousel-img.active {
-            display: block; /* Mostra apenas a imagem ativa */
+            opacity: 1; /* Mostra a imagem ativa */
         }
 
         /* Estilos para botões de navegação (setas) */
@@ -240,15 +248,15 @@
 <body>
     <header>
         <h1>Feliz Aniversário, Meu Amor!</h1>
-        <div class="subtitle">Segue aqui mensagens para a TOP TIER da minha Vida</div>
+        <div class="subtitle">Mensagens especiais esperando por você</div>
     </header>
 
     <div class="container">
-        <div class="carousel-container">
+        <div class="carousel-container" id="carouselContainer">
             <div class="carousel-slide" id="carouselSlide">
-                <img src="images/hadassa1.jpg" alt="Você linda!" class="carousel-img active">
-                <img src="images/hadassa2.jpg" alt="Você mais linda" class="carousel-img">
-                <img src="images/hadassa3.jpg" alt="Você mais linda ainda!" class="carousel-img">
+                <img src="images/foto1.jpg" alt="Nós dois sorrindo" class="carousel-img active">
+                <img src="images/foto2.png" alt="Momento divertido juntos" class="carousel-img">
+                <img src="images/foto3.jpg" alt="Um abraço carinhoso" class="carousel-img">
                 </div>
             <button class="carousel-btn prev" onclick="changeSlide(-1)">&#10094;</button>
             <button class="carousel-btn next" onclick="changeSlide(1)">&#10095;</button>
@@ -338,6 +346,7 @@
         // Script do Carrossel de Fotos
         let slideIndex = 0;
         const slides = document.querySelectorAll('.carousel-img'); // Pega todas as imagens do carrossel
+        const carouselContainer = document.getElementById('carouselContainer');
 
         function showSlides(n) {
             // Garante que o índice esteja dentro dos limites
@@ -350,7 +359,18 @@
             }
 
             // Mostra a imagem atual
-            slides[slideIndex].classList.add('active');
+            const currentSlide = slides[slideIndex];
+            currentSlide.classList.add('active');
+
+            // Ajusta a altura do contêiner do carrossel com base na altura da imagem ativa
+            // Espera a imagem carregar para garantir a altura correta
+            if (currentSlide.complete) {
+                carouselContainer.style.height = currentSlide.offsetHeight + 'px';
+            } else {
+                currentSlide.onload = () => {
+                    carouselContainer.style.height = currentSlide.offsetHeight + 'px';
+                };
+            }
         }
 
         // Função para mudar o slide (chamada pelos botões)
@@ -411,9 +431,12 @@
 
         // Inicializar scripts ao carregar a página
         document.addEventListener('DOMContentLoaded', function() {
-            showSlides(slideIndex); // Inicializa o carrossel
-            // Para auto-play, descomente a linha abaixo:
-            // setInterval(() => { changeSlide(1); }, 5000); // Muda a cada 5 segundos
+            showSlides(slideIndex); // Inicializa o carrossel na primeira imagem
+
+            // Para auto-play, descomente as linhas abaixo:
+            // setInterval(() => { 
+            //     changeSlide(1); 
+            // }, 5000); // Muda a cada 5 segundos (5000 milissegundos)
 
             updateTimeCards();
             // Atualizar a cada minuto
