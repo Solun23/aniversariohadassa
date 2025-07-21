@@ -56,31 +56,34 @@
 
         /* Estilos do Carrossel */
         .carousel-container {
-            width: 100%; /* Ajuste a largura conforme necessário */
+            width: 100%; /* Ocupa a largura total disponível */
             max-width: 700px; /* Largura máxima, ajuste se quiser */
             height: auto; /* IMPORTANTE: Altura automática para se ajustar às imagens */
-            min-height: 300px; /* Altura mínima para evitar colapso antes de carregar a imagem */
+            min-height: 250px; /* Altura mínima para evitar colapso antes de carregar a imagem */
             margin: 2rem auto;
             overflow: hidden;
             position: relative;
             border-radius: 15px;
             box-shadow: 0 8px 24px rgba(0,0,0,0.1);
             transition: height 0.5s ease-in-out; /* Transição suave na mudança de altura */
+            display: flex; /* Permite centralizar o slide */
+            justify-content: center; /* Centraliza horizontalmente o slide */
+            align-items: center; /* Centraliza verticalmente o slide */
         }
 
         .carousel-slide {
-            display: flex; /* Para colocar as imagens lado a lado */
             width: 100%;
             height: 100%; /* Ocupa a altura do container */
             position: relative; /* Para posicionar imagens absolutas dentro */
         }
 
         .carousel-img {
-            width: 100%; /* Garante que a imagem ocupe a largura total */
-            height: 100%; /* Ocupa a altura do container */
-            object-fit: contain; /* Ajusta a imagem dentro do contêiner, mostrando a imagem completa (pode ter barras) */
-            /* Se preferir que a imagem preencha o espaço cortando as bordas, use 'cover' */
-            /* object-fit: cover; */
+            width: 100%; /* Garante que a imagem ocupe a largura total do slide */
+            height: 100%; /* Ocupa a altura do slide */
+            
+            /* Ajusta a imagem dentro do contêiner, mostrando a imagem completa (pode ter barras se as proporções forem muito diferentes) */
+            object-fit: contain; 
+            
             position: absolute; /* Para que uma imagem possa sobrepor a outra durante a transição */
             top: 0;
             left: 0;
@@ -254,9 +257,12 @@
     <div class="container">
         <div class="carousel-container" id="carouselContainer">
             <div class="carousel-slide" id="carouselSlide">
-                <img src="images/hadassa1.jpg" alt="Nós dois sorrindo" class="carousel-img active">
-                <img src="images/hadassa2.png" alt="Momento divertido juntos" class="carousel-img">
-                <img src="images/hadassa3.jpg" alt="Um abraço carinhoso" class="carousel-img">
+                <img src="images/foto1.jpg" alt="Foto 1" class="carousel-img active">
+                <img src="images/foto2.jpg" alt="Foto 2" class="carousel-img">
+                <img src="images/foto3.jpg" alt="Foto 3" class="carousel-img">
+                <img src="images/foto4.jpg" alt="Foto 4" class="carousel-img">
+                <img src="images/foto5.jpg" alt="Foto 5" class="carousel-img">
+                <img src="images/foto6.jpg" alt="Foto 6" class="carousel-img">
                 </div>
             <button class="carousel-btn prev" onclick="changeSlide(-1)">&#10094;</button>
             <button class="carousel-btn next" onclick="changeSlide(1)">&#10095;</button>
@@ -269,7 +275,7 @@
             </div>
             <button onclick="checkPassword('10')">Abrir Mensagem</button>
             <div class="message hidden" id="message10">
-                <h3>Bom dia, meu amor!</h3>
+                <h3>O que dizer da Hadassa?</h3>
                 <p>Hoje é seu dia especial e quero que saiba o quão importante você é para mim. Desde o primeiro momento que te vi, sabia que você seria especial na minha vida.</p>
                 <p>Você ilumina meus dias com seu sorriso e ternura. Que este novo ano de vida traga ainda mais alegrias, conquistas e momentos maravilhosos ao seu lado.</p>
                 <p>Te amo mais do que as palavras podem expressar!</p>
@@ -362,13 +368,15 @@
             const currentSlide = slides[slideIndex];
             currentSlide.classList.add('active');
 
-            // Ajusta a altura do contêiner do carrossel com base na altura da imagem ativa
-            // Espera a imagem carregar para garantir a altura correta
-            if (currentSlide.complete) {
-                carouselContainer.style.height = currentSlide.offsetHeight + 'px';
-            } else {
+            // Ajusta a altura do contêiner do carrossel com base na altura natural da imagem
+            // Isso garante que a altura se ajuste à foto real, respeitando a proporção
+            // É importante que as imagens já estejam carregadas para que naturalHeight funcione corretamente.
+            // O `onload` garante isso para a primeira exibição e para trocas rápidas.
+            if (currentSlide.complete) { // Se a imagem já estiver carregada
+                carouselContainer.style.height = currentSlide.naturalHeight + 'px';
+            } else { // Se a imagem ainda estiver carregando
                 currentSlide.onload = () => {
-                    carouselContainer.style.height = currentSlide.offsetHeight + 'px';
+                    carouselContainer.style.height = currentSlide.naturalHeight + 'px';
                 };
             }
         }
@@ -398,7 +406,12 @@
             // Atualizar cartões conforme horário
             for (const [id, releaseTime] of Object.entries(releaseTimes)) {
                 const card = document.getElementById(`time${id}`);
-                if (currentTime >= releaseTime) {
+                // Use a data atual para verificar o horário.
+                // Como hoje é 21 de julho de 2025, todos os horários passados serão liberados se for após o horário.
+                const today = new Date();
+                const releaseDate = new Date(today.getFullYear(), today.getMonth(), today.getDate(), Math.floor(releaseTime / 100), releaseTime % 100, 0);
+
+                if (now.getTime() >= releaseDate.getTime()) {
                     card.classList.remove('locked');
                 } else {
                     card.classList.add('locked');
@@ -431,14 +444,46 @@
 
         // Inicializar scripts ao carregar a página
         document.addEventListener('DOMContentLoaded', function() {
-            showSlides(slideIndex); // Inicializa o carrossel na primeira imagem
+            // Assegura que todas as imagens do carrossel estão carregadas antes de iniciar, para que naturalHeight funcione
+            let imagesLoadedCount = 0;
+            const totalImages = slides.length;
+
+            if (totalImages === 0) { // Caso não haja imagens, ainda assim exibe as mensagens
+                updateTimeCards();
+                setInterval(updateTimeCards, 60000);
+            } else {
+                slides.forEach(img => {
+                    if (img.complete) { // Se a imagem já estiver em cache/carregada
+                        imagesLoadedCount++;
+                    } else { // Se não estiver, espera carregar
+                        img.onload = () => {
+                            imagesLoadedCount++;
+                            if (imagesLoadedCount === totalImages) {
+                                showSlides(slideIndex); // Inicia o carrossel depois que todas as imagens carregam
+                            }
+                        };
+                        img.onerror = () => { // Caso alguma imagem não carregue
+                            console.error('Erro ao carregar imagem:', img.src);
+                            imagesLoadedCount++; // Ainda conta para não travar o carregamento
+                            if (imagesLoadedCount === totalImages) {
+                                showSlides(slideIndex);
+                            }
+                        };
+                    }
+                });
+
+                // Se todas as imagens já estiverem em cache (com carregamento completo), inicia o carrossel imediatamente
+                if (imagesLoadedCount === totalImages) {
+                    showSlides(slideIndex);
+                }
+            }
 
             // Para auto-play, descomente as linhas abaixo:
             // setInterval(() => { 
             //     changeSlide(1); 
             // }, 5000); // Muda a cada 5 segundos (5000 milissegundos)
 
-            updateTimeCards();
+            updateTimeCards(); // Chama uma vez para configurar ao carregar
             // Atualizar a cada minuto
             setInterval(updateTimeCards, 60000);
             
