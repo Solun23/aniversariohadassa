@@ -54,6 +54,70 @@
             box-shadow: 0 8px 24px rgba(0,0,0,0.05);
         }
 
+        /* Estilos do Carrossel */
+        .carousel-container {
+            width: 100%; /* Ajuste a largura conforme necessário */
+            max-width: 700px; /* Largura máxima, ajuste se quiser */
+            height: 400px; /* Altura fixa do carrossel, AJUSTE CONFORME SUAS FOTOS! */
+            margin: 2rem auto;
+            overflow: hidden;
+            position: relative;
+            border-radius: 15px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+        }
+
+        .carousel-slide {
+            display: flex; /* Para colocar as imagens lado a lado */
+            width: 100%;
+            height: 100%;
+            transition: transform 0.5s ease-in-out; /* Transição suave */
+        }
+
+        .carousel-img {
+            min-width: 100%; /* Garante que a imagem ocupe a largura total */
+            height: 100%;
+            object-fit: cover; /* Corta a imagem para preencher, mantendo a proporção */
+            display: none; /* Esconde todas as imagens por padrão */
+        }
+
+        .carousel-img.active {
+            display: block; /* Mostra apenas a imagem ativa */
+        }
+
+        /* Estilos para botões de navegação (setas) */
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 1.5rem;
+            border-radius: 5px;
+            z-index: 10;
+            opacity: 0; /* Começa escondido */
+            transition: opacity 0.3s ease;
+        }
+
+        .carousel-btn:hover {
+            opacity: 1;
+        }
+
+        .carousel-btn.prev {
+            left: 10px;
+        }
+
+        .carousel-btn.next {
+            right: 10px;
+        }
+
+        /* Opcional: Se você quer que as setas só apareçam ao passar o mouse */
+        .carousel-container:hover .carousel-btn {
+            opacity: 1;
+        }
+
         .time-card {
             border-left: 5px solid var(--primary-color);
             padding: 1.5rem;
@@ -146,27 +210,12 @@
             position: absolute;
             width: 50px;
             height: 50px;
-            background-image: url("https://placehold.co/50x50?text=❤️");
+            /* Usando um SVG de coração para não precisar de arquivo externo */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'%23ff6b6b\'%3E%3Cpath d=\'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z\'/%3E%3C/svg%3E");
             background-size: contain;
             background-repeat: no-repeat;
             opacity: 0.6;
             z-index: -1;
-        }
-
-        .photo-placeholder {
-            width: 100%;
-            height: 300px;
-            background-color: #f5f5f5;
-            margin-bottom: 1.5rem;
-            border-radius: 8px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .photo-placeholder img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
         }
 
         footer {
@@ -195,10 +244,15 @@
     </header>
 
     <div class="container">
-        <div class="photo-placeholder">
-            <img src="https://github.com/Solun23/aniversariohadassa/blob/main/aniversariohadassa/hadassa1.jpg" alt="Foto do casal em um momento feliz juntos" />
+        <div class="carousel-container">
+            <div class="carousel-slide" id="carouselSlide">
+                <img src="hadassa1.jpg" alt="Nós dois sorrindo" class="carousel-img active">
+                <img src="hadassa2.png" alt="Momento divertido juntos" class="carousel-img">
+                <img src="hadassa3.jpg" alt="Um abraço carinhoso" class="carousel-img">
+                </div>
+            <button class="carousel-btn prev" onclick="changeSlide(-1)">&#10094;</button>
+            <button class="carousel-btn next" onclick="changeSlide(1)">&#10095;</button>
         </div>
-
         <div class="time-card" id="time10">
             <h2>10:00</h2>
             <p>Uma mensagem matinal cheia de amor espera por você.</p>
@@ -281,6 +335,30 @@
     </footer>
 
     <script>
+        // Script do Carrossel de Fotos
+        let slideIndex = 0;
+        const slides = document.querySelectorAll('.carousel-img'); // Pega todas as imagens do carrossel
+
+        function showSlides(n) {
+            // Garante que o índice esteja dentro dos limites
+            if (n >= slides.length) { slideIndex = 0 }
+            if (n < 0) { slideIndex = slides.length - 1 }
+
+            // Esconde todas as imagens
+            for (let i = 0; i < slides.length; i++) {
+                slides[i].classList.remove('active');
+            }
+
+            // Mostra a imagem atual
+            slides[slideIndex].classList.add('active');
+        }
+
+        // Função para mudar o slide (chamada pelos botões)
+        function changeSlide(n) {
+            slideIndex += n;
+            showSlides(slideIndex);
+        }
+
         // Verifica se o horário já passou e libera as mensagens conforme o horário
         function updateTimeCards() {
             const now = new Date();
@@ -331,8 +409,12 @@
             }
         }
 
-        // Inicializar
+        // Inicializar scripts ao carregar a página
         document.addEventListener('DOMContentLoaded', function() {
+            showSlides(slideIndex); // Inicializa o carrossel
+            // Para auto-play, descomente a linha abaixo:
+            // setInterval(() => { changeSlide(1); }, 5000); // Muda a cada 5 segundos
+
             updateTimeCards();
             // Atualizar a cada minuto
             setInterval(updateTimeCards, 60000);
@@ -351,4 +433,3 @@
     </script>
 </body>
 </html>
-
