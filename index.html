@@ -11,7 +11,7 @@
             --text-color: #333;
             --light-color: #fff5f5;
         }
-        
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--light-color);
@@ -69,19 +69,28 @@
             display: flex; /* Permite centralizar o slide */
             justify-content: center; /* Centraliza horizontalmente o slide */
             align-items: center; /* Centraliza verticalmente o slide */
+            /* Removendo qualquer padding ou borda vertical extra que possa criar espaços */
+            padding: 0; 
+            border: none;
         }
 
         .carousel-slide {
             width: 100%;
             height: 100%; /* Ocupa a altura do container */
             position: relative; /* Para posicionar imagens absolutas dentro */
+            display: flex; /* Para flexbox no slide */
+            justify-content: center; /* Centraliza a imagem horizontalmente */
+            align-items: center; /* Centraliza a imagem verticalmente */
         }
 
         .carousel-img {
             width: 100%; /* Garante que a imagem ocupe a largura total do slide */
             height: 100%; /* Ocupa a altura do slide */
             
-            /* Ajusta a imagem dentro do contêiner, mostrando a imagem completa (pode ter barras se as proporções forem muito diferentes) */
+            /* Ajusta a imagem dentro do contêiner, mostrando a imagem completa.
+               Este é o motivo do "espaço em branco" se a proporção da imagem
+               for diferente da proporção da largura do carrossel.
+               Se quiser preencher e CORTE as bordas, use 'cover'. */
             object-fit: contain; 
             
             position: absolute; /* Para que uma imagem possa sobrepor a outra durante a transição */
@@ -241,7 +250,7 @@
             .container {
                 padding: 1rem;
             }
-            
+
             h1 {
                 font-size: 2rem;
             }
@@ -370,41 +379,33 @@
             if (n < 0) { slideIndex = slides.length - 1 }
 
             // Esconde todas as imagens
-            for (let i = 0; i < slides.length; i++) {
-                slides[i].classList.remove('active');
-            }
+            slides.forEach(slide => slide.classList.remove('active'));
 
             // Mostra a imagem atual
             const currentSlide = slides[slideIndex];
             currentSlide.classList.add('active');
 
             // Ajusta a altura do contêiner do carrossel com base na altura natural da imagem
-            // Isso garante que a altura se ajuste à foto real, respeitando a proporção
-            // É importante que as imagens já estejam carregadas para que naturalHeight funcione corretamente.
-            // O `onload` garante isso para a primeira exibição e para trocas rápidas.
-            if (currentSlide.complete) { // Se a imagem já estiver carregada
+            if (currentSlide.complete) {
                 carouselContainer.style.height = currentSlide.naturalHeight + 'px';
-            } else { // Se a imagem ainda estiver carregando
+            } else {
                 currentSlide.onload = () => {
                     carouselContainer.style.height = currentSlide.naturalHeight + 'px';
                 };
             }
         }
 
-        // Função para mudar o slide (chamada pelos botões)
         function changeSlide(n) {
             slideIndex += n;
             showSlides(slideIndex);
         }
 
-        // Verifica se o horário já passou e libera as mensagens conforme o horário
         function updateTimeCards() {
             const now = new Date();
             const hours = now.getHours();
             const minutes = now.getMinutes();
             const currentTime = hours * 100 + minutes;
 
-            // Definir horários de liberação
             const releaseTimes = {
                 10: 1000,
                 12: 1200,
@@ -413,15 +414,11 @@
                 22: 2200
             };
 
-            // Atualizar cartões conforme horário
             for (const [id, releaseTime] of Object.entries(releaseTimes)) {
                 const card = document.getElementById(`time${id}`);
-                // Use a data atual para verificar o horário.
-                // Ajustado para o fuso horário de São Paulo (GMT-3)
                 const today = new Date();
                 const releaseDate = new Date(today.getFullYear(), today.getMonth(), today.getDate(), Math.floor(releaseTime / 100), releaseTime % 100, 0);
                 
-                // Comparar os timestamps
                 if (now.getTime() >= releaseDate.getTime()) {
                     card.classList.remove('locked');
                 } else {
@@ -430,7 +427,6 @@
             }
         }
 
-        // Verifica a senha inserida
         function checkPassword(time) {
             const passwords = {
                 '10': 'Hadassa',
@@ -443,7 +439,7 @@
             const input = document.getElementById(`pass${time}`).value;
             const message = document.getElementById(`message${time}`);
 
-            if (input === passwords[time]) {
+            if (passwords.hasOwnProperty(time) && input === passwords[`${time}`]) {
                 message.classList.remove('hidden');
                 document.getElementById(`pass${time}`).value = '';
                 document.getElementById(`pass${time}`).placeholder = 'Senha correta!';
@@ -453,29 +449,27 @@
             }
         }
 
-        // Inicializar scripts ao carregar a página
         document.addEventListener('DOMContentLoaded', function() {
-            // Assegura que todas as imagens do carrossel estão carregadas antes de iniciar, para que naturalHeight funcione
             let imagesLoadedCount = 0;
             const totalImages = slides.length;
 
-            if (totalImages === 0) { // Caso não haja imagens, ainda assim exibe as mensagens
+            if (totalImages === 0) {
                 updateTimeCards();
                 setInterval(updateTimeCards, 60000);
             } else {
                 slides.forEach(img => {
-                    if (img.complete) { // Se a imagem já estiver em cache/carregada
+                    if (img.complete) {
                         imagesLoadedCount++;
-                    } else { // Se não estiver, espera carregar
+                    } else {
                         img.onload = () => {
                             imagesLoadedCount++;
                             if (imagesLoadedCount === totalImages) {
-                                showSlides(slideIndex); // Inicia o carrossel depois que todas as imagens carregam
+                                showSlides(slideIndex);
                             }
                         };
-                        img.onerror = () => { // Caso alguma imagem não carregue
+                        img.onerror = () => {
                             console.error('Erro ao carregar imagem:', img.src);
-                            imagesLoadedCount++; // Ainda conta para não travar o carregamento
+                            imagesLoadedCount++;
                             if (imagesLoadedCount === totalImages) {
                                 showSlides(slideIndex);
                             }
@@ -483,22 +477,14 @@
                     }
                 });
 
-                // Se todas as imagens já estiverem em cache (com carregamento completo), inicia o carrossel imediatamente
                 if (imagesLoadedCount === totalImages) {
                     showSlides(slideIndex);
                 }
             }
 
-            // Para auto-play, descomente as linhas abaixo:
-            // setInterval(() => { 
-            //     changeSlide(1); 
-            // }, 5000); // Muda a cada 5 segundos (5000 milissegundos)
-
-            updateTimeCards(); // Chama uma vez para configurar ao carregar
-            // Atualizar a cada minuto
+            updateTimeCards();
             setInterval(updateTimeCards, 60000);
-            
-            // Adicionar corações flutuantes
+
             for (let i = 0; i < 15; i++) {
                 const heart = document.createElement('div');
                 heart.className = 'heart';
